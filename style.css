@@ -1,0 +1,129 @@
+:root {
+  --floor-height: 60px;
+  --elevator-width: 60px;
+  --elevator-margin: 45px;
+}
+
+h1 {
+  text-align: center;
+}
+
+#building {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin: 0 auto;
+  width: 700px;
+}
+
+#floors {
+  flex: 1;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.floor {
+  position: relative;
+  height: var(--floor-height);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9f9;
+}
+
+.time-counter {
+  color: #333;
+  margin-top: 5px;
+  text-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  height: 20px;
+  width: 100%; 
+}
+
+
+.call-button  {
+  width: 75px;
+  color: white;
+  background: rgb(102, 204, 102);
+  border: none;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.floor div {
+  height: var(--floor-height);
+  width: 100px;
+  padding: 0px 6px;
+  border: 1px solid;
+  margin: 5px;
+}
+
+.floor div:first-child {
+  height: var(--floor-height);
+  width: 120px;
+  padding: 0px 6px;
+  border: none;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.floor div:last-child {
+  height: var(--floor-height);
+  width: 100px;
+  padding: 0px 6px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+#elevators {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin: 0 auto;
+  width: 470px;
+}
+
+.elevator {
+  position: absolute;
+  transition: transform 2s ease-in-out;
+  transform: translateY(calc(-1 * var(--floor-height)));
+  height: var(--floor-height);
+  width: 100px;
+  padding: 0px 6px;
+}
+
+.elevator-image {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(144, 238, 144, 0.7);
+  background-image: url("elevator.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.elevator.transitioning .elevator-image{
+  background-color: rgba(255, 0, 0, 0.7);
+}
+
+.elevator[data-elevator="1"] {
+  left: calc(0 * (var(--elevator-width) + var(--elevator-margin)) + 25px);
+}
+.elevator[data-elevator="2"] {
+  left: calc(1 * (var(--elevator-width) + var(--elevator-margin)) + 20px);
+}
+.elevator[data-elevator="3"] {
+  left: calc(2 * (var(--elevator-width) + var(--elevator-margin)) + 20px);
+}
+.elevator[data-elevator="4"] {
+  left: calc(3 * (var(--elevator-width) + var(--elevator-margin)) + 20px);
+}
+.elevator[data-elevator="5"] {
+  left: calc(4 * (var(--elevator-width) + var(--elevator-margin)) + 20px);
+}
