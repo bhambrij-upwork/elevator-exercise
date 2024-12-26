@@ -127,3 +127,22 @@ h1 {
 .elevator[data-elevator="5"] {
   left: calc(4 * (var(--elevator-width) + var(--elevator-margin)) + 20px);
 }
+
+.call-button {
+  width: 90px;
+  color: white;
+  background: rgb(102, 204, 102);
+  border: none;
+  border-radius: 4px;
+  padding: 5px;
+  position: relative;
+}
+
+.call-button .button-text {
+  display: block;
+}
+
+.call-button.passing {
+  background: orange;
+  color: black;
+}

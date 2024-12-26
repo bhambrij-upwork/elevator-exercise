@@ -1,11 +1,11 @@
 class ElevatorSystem {
   constructor() {
     this.elevators = [
-      { id: 1, position: 0, state: "idle" },
-      { id: 2, position: 0, state: "idle" },
-      { id: 3, position: 0, state: "idle" },
-      { id: 4, position: 0, state: "idle" },
-      { id: 5, position: 0, state: "idle" },
+      { id: 1, position: 0, targetFloor: 0, interval: undefined, time: 0, state: "idle" },
+      { id: 2, position: 0, targetFloor: 0, interval: undefined, time: 0, state: "idle" },
+      { id: 3, position: 0, targetFloor: 0, interval: undefined, time: 0, state: "idle" },
+      { id: 4, position: 0, targetFloor: 0, interval: undefined, time: 0, state: "idle" },
+      { id: 5, position: 0, targetFloor: 0, interval: undefined, time: 0, state: "idle" },
     ];
     this.callQueue = [];
     this.floorHeight = parseInt(
@@ -25,28 +25,38 @@ class ElevatorSystem {
 
   handleCallButton(event) {
     const floor = parseInt(event.target.parentElement.dataset.floor, 10);
-    event.target.textContent = "Waiting";
-    event.target.style.backgroundColor = "red";
-    this.callQueue.push(floor);
-    this.processQueue();
+
+    let processingElevator = this.elevators.filter((elevator) => elevator.targetFloor == floor);
+
+    console.log('processingElevator', processingElevator);
+
+    if (event.target.textContent, event.target.textContent == "Waiting") {
+      this.handleCancel(processingElevator[0])  
+    } else if (processingElevator.length == 0) {
+      event.target.textContent = "Waiting";
+      event.target.style.backgroundColor = "red";
+      this.callQueue.push(floor);
+      this.processQueue();
+    }
+  }
+
+  handleCancel(processingElevator) {
+    processingElevator.targetFloor = processingElevator.position;
   }
 
   processQueue() {
     if (this.callQueue.length === 0) return;
 
-    const floor = this.callQueue.shift();
+    const floor = this.callQueue.shift(); 
     const availableElevators = this.elevators.filter(
-      (elevator) => elevator.state === "idle"
+      (elevator) => elevator.state === "idle" && elevator.position == elevator.targetFloor 
     );
 
-    if (availableElevators.length === 0) {
-      this.callQueue.push(floor);
-      return;
-    }
+    if (availableElevators.length === 0) return;
 
     const closestElevator = availableElevators.reduce((prev, curr) => {
-      const prevDistance = Math.abs(prev.position - floor);
-      const currDistance = Math.abs(curr.position - floor);
+      const prevDistance = Math.abs(prev.targetFloor - floor);
+      const currDistance = Math.abs(curr.targetFloor - floor);
       return currDistance < prevDistance ? curr : prev;
     });
 
@@ -54,56 +64,64 @@ class ElevatorSystem {
   }
 
   moveElevator(elevator, targetFloor) {
-    elevator.state = "moving";
+    elevator.targetFloor = targetFloor;
+    elevator.time  = 0;
 
+    elevator.state = "moving";
     const elevatorElement = document.querySelector(
       `.elevator[data-elevator="${elevator.id}"]`
     );
-    const offset = -1 * (this.floorHeight * (targetFloor + 1));
-    elevatorElement.style.transform = `translateY(${offset}px)`;
-    elevatorElement.classList.add("transitioning");
+
+    const direction = targetFloor > elevator.position ? 1 : -1;
 
     const startTime = Date.now();
-    const timeCounterElement = document.querySelector(
-      `.floor[data-floor="${targetFloor}"] .time-counter[data-elevator="${elevator.id}"]`
-    );
+    this.clearTimeCounters(elevator);
 
-    const interval = setInterval(() => {
-      const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-      timeCounterElement.textContent = `${elapsedTime} sec(s)`;
-    }, 1000);
+    elevator.interval = setInterval(() => {
+      if (elevator.position === elevator.targetFloor) {
+        clearInterval(elevator.interval);
+        elevator.state = "idle";
+        elevatorElement.classList.remove("transitioning");
+        this.updateButton(elevator, targetFloor);
+        this.processQueue(); 
 
-    setTimeout(() => {
-      const travelTime = (Date.now() - startTime) / 1000;
-      elevator.position = targetFloor;
-      elevatorElement.classList.remove("transitioning");
-      elevator.state = "idle";
-      
-      this.playSound();
-      clearInterval(interval);
-      setTimeout(() => {
-        timeCounterElement.textContent = ``;
-        this.processQueue();
-      }, 2000);
+        const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        const timeCounterElement = document.querySelector(
+          `.floor[data-floor="${elevator.targetFloor}"] .time-counter[data-elevator="${elevator.id}"]`
+        );
 
-      this.updateButton(targetFloor);
+        timeCounterElement.textContent = `${elapsedTime} sec(s)`;
+        return;
+      }
+
+      elevator.position += direction;
+      const offset = -1 * (this.floorHeight * (elevator.position + 1));
+      elevatorElement.style.transform = `translateY(${offset}px)`;
+      elevatorElement.classList.add("transitioning");
     }, 2000);
   }
 
-  updateButton(floor) {
+  clearTimeCounters = (elevator) => {
+    document.querySelectorAll(
+      `.floor .time-counter[data-elevator="${elevator.id}"]`
+    ).forEach(counter => counter.textContent = "");
+  }
+
+  updateButton(elevator, floor) {
     const button = document.querySelector(
       `.floor[data-floor="${floor}"] .call-button`
     );
-    button.textContent = "Arrived";
+
+    if (elevator.targetFloor == floor) {
+      button.textContent = "Arrived";
+    } else {
+      button.textContent = "Cancelled";
+    }
+
     setTimeout(() => {
       button.textContent = "Call";
       button.style.backgroundColor = "";
     }, 2000);
-  }
-
-  playSound() {
-    const audio = new Audio("ding.mp3"); 
-    audio.play();
   }
 }
 
