@@ -59,5 +59,9 @@
 -- Jquery
 - No need to build the HTML in JS (example elem.createElement(‘div’)) permission)
 
+# Contact Information:
+
+Email : bhambri.jatinder@gmail.com
+Skype Id => live:.cid.82fa084f9932dc9f  
 
 # Good Luck
